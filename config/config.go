@@ -6,7 +6,7 @@ type Config struct {
 	mysqlDB mysql.MySQLConnection
 }
 
-func Init() *Config {
+func LoadConfig() *Config {
 	cfg := new(Config)
 
 	cfg.InitMySQLDB()

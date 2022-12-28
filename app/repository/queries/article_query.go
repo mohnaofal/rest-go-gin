@@ -1,4 +1,4 @@
-package commands
+package queries
 
 import (
 	"context"
@@ -19,7 +19,7 @@ type ArticleQuery interface {
 	Select(ctx context.Context, params *models.ArticleParams) ([]models.Article, error)
 }
 
-func NewArticleCommand(cfg *config.Config) ArticleQuery {
+func NewArticleQuery(cfg *config.Config) ArticleQuery {
 	return &articleQuery{
 		cfg:     cfg,
 		mysqlDB: cfg.MySQLDB(),

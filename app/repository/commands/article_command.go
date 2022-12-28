@@ -26,7 +26,7 @@ func NewArticleCommand(cfg *config.Config) ArticleCommand {
 }
 
 func (c *articleCommand) Insert(ctx context.Context, data *models.Article) (*models.Article, error) {
-	commandExec, err := c.mysqlDB.MySQL().Exec(`INSERT INTO article(author, title, body) VALUES(?, ?, ?)`)
+	commandExec, err := c.mysqlDB.MySQL().Exec(`INSERT INTO article(author, title, body) VALUES(?, ?, ?)`, data.Author, data.Title, data.Body)
 	if err != nil {
 		log.Err(err)
 		return nil, err
