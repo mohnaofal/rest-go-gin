@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -22,7 +21,7 @@ type articleCommand struct {
 type ArticleCommand interface {
 	Insert(ctx context.Context, data *models.Article) (*models.Article, error)
 
-	SetCache(ctx context.Context, key string, data interface{}) error
+	SetCache(ctx context.Context, key string, data interface{}, duration time.Duration) error
 }
 
 func NewArticleCommand(cfg *config.Config) ArticleCommand {
@@ -48,21 +47,16 @@ func (c *articleCommand) Insert(ctx context.Context, data *models.Article) (*mod
 
 	data.ID = uint(id)
 
-	// Set Key
-	key := fmt.Sprintf(`article:%v`, id)
-	// Cache Article after insert
-	c.SetCache(ctx, key, data)
-
 	return data, nil
 }
 
-func (c *articleCommand) SetCache(ctx context.Context, key string, data interface{}) error {
-	dataString, err := json.Marshal(data)
+func (c *articleCommand) SetCache(ctx context.Context, key string, data interface{}, duration time.Duration) error {
+	byteData, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	if err := c.cache.Set(key, string(dataString), time.Hour).Err(); err != nil {
+	if err := c.cache.Set(key, string(byteData), time.Hour).Err(); err != nil {
 		return err
 	}
 	return nil

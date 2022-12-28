@@ -11,6 +11,7 @@ type Article struct {
 }
 
 type ArticleParams struct {
-	Query  string `json:"query"`
-	Author string `json:"author"`
+	Query           string `json:"query"`
+	Author          string `json:"author"`
+	OrderBy, SortBy string
 }

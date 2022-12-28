@@ -36,7 +36,9 @@ func (c *articleQueryUsecase) View(ctx context.Context, form *request.ViewArticl
 			}
 			return ``
 		}(),
-		Author: form.Author,
+		Author:  form.Author,
+		OrderBy: `id`,
+		SortBy:  `DESC`,
 	}
 
 	data, err := c.articleQuery.Select(ctx, params)

@@ -36,7 +36,7 @@ func (c *articleQuery) Select(ctx context.Context, params *models.ArticleParams)
 	if params.Query != `` {
 		queryCondition += func() string {
 			if len(queryCondition) > 0 {
-				return fmt.Sprintf(`AND (title LIKE "%s" OR body LIKE "%s)"`, params.Query, params.Query)
+				return fmt.Sprintf(` AND (title LIKE "%s" OR body LIKE "%s)"`, params.Query, params.Query)
 			}
 			return fmt.Sprintf(`WHERE (title LIKE "%s" OR body LIKE "%s")`, params.Query, params.Query)
 		}()
@@ -45,10 +45,14 @@ func (c *articleQuery) Select(ctx context.Context, params *models.ArticleParams)
 	if params.Author != `` {
 		queryCondition += func() string {
 			if len(queryCondition) > 0 {
-				return fmt.Sprintf(`AND author = "%s"`, params.Author)
+				return fmt.Sprintf(` AND author = "%s"`, params.Author)
 			}
 			return fmt.Sprintf(`WHERE author = "%s"`, params.Author)
 		}()
+	}
+
+	if params.OrderBy != `` && params.SortBy != `` {
+		queryCondition += fmt.Sprintf(` ORDER BY %s %s`, params.OrderBy, params.SortBy)
 	}
 
 	sqlPrepare, err := c.mysqlDB.MySQL().Prepare(`SELECT * FROM article ` + queryCondition)
