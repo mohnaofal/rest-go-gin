@@ -4,9 +4,9 @@ import "time"
 
 type Article struct {
 	ID      uint      `json:"id" db:"id"`
-	Author  string    `json:"author" db:"author"`
-	Title   string    `json:"title" db:"title"`
-	Body    string    `json:"body" db:"body"`
+	Author  string    `json:"author" db:"author" form:"author" binding:"required"`
+	Title   string    `json:"title" db:"title" form:"title" binding:"required"`
+	Body    string    `json:"body" db:"body" form:"body" binding:"required"`
 	Created time.Time `json:"created" db:"created"`
 }
 

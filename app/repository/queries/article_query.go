@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/mohnaofal/rest-go-gin/app/models"
@@ -27,27 +28,55 @@ func NewArticleQuery(cfg *config.Config) ArticleQuery {
 }
 
 func (c *articleQuery) Select(ctx context.Context, params *models.ArticleParams) ([]models.Article, error) {
-	rows := make([]models.Article, 0)
-	queryExec, err := c.mysqlDB.MySQL().Query(`SELECT * FROM article WHERE title LIKE ? OR body LIKE ? AND author = ?`, params.Query, params.Query, params.Author)
-	if err != nil {
-		log.Err(err)
-		return rows, err
+	var (
+		res            = make([]models.Article, 0)
+		queryCondition = ``
+	)
+
+	if params.Query != `` {
+		queryCondition += func() string {
+			if len(queryCondition) > 0 {
+				return fmt.Sprintf(`AND (title LIKE "%s" OR body LIKE "%s)"`, params.Query, params.Query)
+			}
+			return fmt.Sprintf(`WHERE (title LIKE "%s" OR body LIKE "%s")`, params.Query, params.Query)
+		}()
 	}
 
-	for queryExec.Next() {
+	if params.Author != `` {
+		queryCondition += func() string {
+			if len(queryCondition) > 0 {
+				return fmt.Sprintf(`AND author = "%s"`, params.Author)
+			}
+			return fmt.Sprintf(`WHERE author = "%s"`, params.Author)
+		}()
+	}
+
+	sqlPrepare, err := c.mysqlDB.MySQL().Prepare(`SELECT * FROM article ` + queryCondition)
+	if err != nil {
+		log.Err(err)
+		return res, err
+	}
+
+	rows, err := sqlPrepare.Query()
+	if err != nil {
+		log.Err(err)
+		return res, err
+	}
+
+	for rows.Next() {
 		var (
 			id                  uint
 			author, title, body string
 			created             time.Time
 		)
 
-		err = queryExec.Scan(&id, &author, &title, &body, &created)
+		err = rows.Scan(&id, &author, &title, &body, &created)
 		if err != nil {
 			log.Err(err)
-			return rows, err
+			return res, err
 		}
 
-		rows = append(rows, models.Article{
+		res = append(res, models.Article{
 			ID:      id,
 			Author:  author,
 			Title:   title,
@@ -56,5 +85,5 @@ func (c *articleQuery) Select(ctx context.Context, params *models.ArticleParams)
 		})
 	}
 
-	return rows, nil
+	return res, nil
 }
