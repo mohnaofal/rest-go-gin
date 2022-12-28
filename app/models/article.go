@@ -9,3 +9,8 @@ type Article struct {
 	Body    string    `json:"body" db:"body"`
 	Created time.Time `json:"created" db:"created"`
 }
+
+type ArticleParams struct {
+	Query  string `json:"query"`
+	Author string `json:"author"`
+}
