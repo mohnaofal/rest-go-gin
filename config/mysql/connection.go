@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"os"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type mysqlConnection struct {
