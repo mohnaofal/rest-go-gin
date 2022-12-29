@@ -1,0 +1,54 @@
+# FOR LOCAL DEVELOPMENT
+version: "3"
+services:
+    dbbrowser:
+        restart: on-failure
+        image: adminer:4-standalone
+        ports:
+            - "18081:8080"
+        depends_on:
+            - mysqldb
+        links:
+            - mysqldb
+        logging:
+            driver: none
+        environment:
+            - ADMINER_DEFAULT_SERVER=mysql
+            - ADMINER_DESIGN=flat
+        networks:
+            - database-net
+    mysqldb:
+        restart: always
+        image: mysql:5.7
+        expose:
+            - 3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=admin
+            - MYSQL_DATABASE=dbstart
+            - MYSQL_USER=admin
+            - MYSQL_PASSWORD=admin
+        networks:
+            - database-net
+    redisbrowser:
+        restart: on-failure
+        image: erikdubbelboer/phpredisadmin
+        ports:
+            - "16389:80"
+        depends_on:
+            - redis
+        links:
+            - redis
+        logging:
+            driver: none
+        environment:
+            - REDIS_1_HOST=redisserver
+            - REDIS_1_NAME=GolangService
+    redis:
+        restart: on-failure
+        image: redis:7
+        expose:
+            - 6379
+        logging:
+            driver: none
+networks:
+    database-net:
